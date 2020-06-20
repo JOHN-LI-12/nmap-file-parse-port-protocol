@@ -1,44 +1,48 @@
-import xml.dom.minidom
-# import the xml.dom.minidom to use purse xml file
-import collections
-# import collections so we can append an element to a key in dictionary
+import xml.etree.ElementTree as ET
 
 
-def file_to_purse():
-    """define function file_to_purse that will read and purse the xml file"""
+def parse_port_protocol(nmap_file):
+    """define function parse_port_protocol that will read and parse the xml file"""
 
     # use parse() to parse the xml file
-    file_to_check = xml.dom.minidom.parse("f_router.xml")
-    # find all ports inside the xml file
-    ports = file_to_check.getElementsByTagName("port")
-    # find all addresses inside the xml file
-    addresses = file_to_check.getElementsByTagName("address")
-    # create empty dictionary dictionary_to_check that will store the ip address and list_ports
-    # use collections.defaultdict() to store multiple elements in one key
-    dictionary_to_check = collections.defaultdict(list)
-    # use for loop to store ip addresses and port_list into the dictionary_to_check
-    for address in addresses:
-        for port in ports:
-            dictionary_to_check[address.getAttribute("addr")].append(port.getAttribute("portid"))
-    # return the dictionary_to_check
-    return dictionary_to_check
+    nmap_xml = ET.parse(nmap_file)
+    # start with finding the root
+    root = nmap_xml.getroot()
+    # create empty dictionary dictionary_address_ip_and_ports
+    dictionary_address_ip_and_ports = {}
+    # find host inside the xml file first
+    for host in root.iter("host"):
+        # then locate address inside the host
+        for address in host.iter("address"):
+            # create empty dictionary dictionary_portid_and_protocol
+            dictionary_portid_and_protocol = {}
+            # finally locate the portid inside the host
+            for ports in host.iter("port"):
+                # store portid and protocol into dictionary_portid_and_protocol
+                dictionary_portid_and_protocol[ports.get("portid")] = ports.get("protocol")
+            # store dictionary_portid_and_protocol into dictionary_address_ip_and_ports
+            dictionary_address_ip_and_ports[address.get("addr")] = dictionary_portid_and_protocol
+    # return dictionary_store_ip_and_ports
+    return dictionary_address_ip_and_ports
 
 
-def display_output(dictionary_to_check):
-    """define a function display_output that print ip: [list_ports] """
+def display_port_protocol(dictionary_address_ip_and_ports):
+    """define a function display_port_protocol that will print ip: [list_ports]"""
 
     # use items() method to present the ports in ip address that we stored in the dictionary
-    for ip, ports in dictionary_to_check.items():
-        print(ip, ":", ports)
+    for address, ip_and_ports in dictionary_address_ip_and_ports.items():
+        print(address, ":", ip_and_ports)
 
 
 def main():
     """define main function"""
 
-    # store the return dictionary from file_to_purse in dictionary_to_check
-    dictionary_to_check = file_to_purse()
-    # use display_output function to present ip address : [list_ports]
-    display_output(dictionary_to_check)
+    # store filename that we want to check in file_to_parse
+    file_to_parse = "f_router.xml"
+    # store the return dictionary from file_to_purse in dictionary_ip_and_ports
+    dictionary_address_ip_and_ports = parse_port_protocol(file_to_parse)
+    # use function display_port_protocol with input of dictionary_ip_and_ports to display what we are looking for
+    display_port_protocol(dictionary_address_ip_and_ports)
 
 
 if __name__ == "__main__":
