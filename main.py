@@ -1,5 +1,5 @@
 import xml.etree.ElementTree as ET
-
+import sys
 
 def parse_port_protocol(nmap_file):
     """define function parse_port_protocol that will read and parse the xml file"""
@@ -38,11 +38,21 @@ def main():
     """define main function"""
 
     # store filename that we want to check in file_to_parse
-    file_to_parse = "f_router.xml"
+    # for index_of_arugments in range(1, len(sys.argv)):
+    if len(sys.argv) != 1:
+        print("Please just enter 1 file name!")
+        exit(0)
+    try:
+        nmap_file = sys.argv[1]
     # store the return dictionary from file_to_purse in dictionary_ip_and_ports
-    dictionary_address_ip_and_ports = parse_port_protocol(file_to_parse)
+        dictionary_address_ip_and_ports = parse_port_protocol(nmap_file)
     # use function display_port_protocol with input of dictionary_ip_and_ports to display what we are looking for
-    display_port_protocol(dictionary_address_ip_and_ports)
+        display_port_protocol(dictionary_address_ip_and_ports)
+    except FileNotFoundError:
+        print("Wrong file name entered, file not found.")
+    # for index_of_arguments in range(len(sys.argv)):
+        # if index_of_arguments > 1:
+            # print("Attention! You entered multiple file name. Please just enter 1 file name.")
 
 
 if __name__ == "__main__":
